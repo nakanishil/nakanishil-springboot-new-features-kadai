@@ -1,0 +1,33 @@
+document.getElementById("favorite-submit").addEventListener("click", function () {
+    const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute("content");
+    const houseId = document.getElementById("house-id").value;
+    const comment = document.getElementById("favorite-comment").value;
+
+    const data = {
+        house: { id: houseId },
+        comment: comment
+    };
+
+    fetch("/favorites", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": csrfToken
+        },
+        body: JSON.stringify(data)
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to add favorite");
+            }
+            return response.json();
+        })
+        .then(result => {
+            console.log("Favorite added:", result);
+            alert("お気に入りに追加されました！");
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("お気に入りの追加に失敗しました。");
+        });
+});

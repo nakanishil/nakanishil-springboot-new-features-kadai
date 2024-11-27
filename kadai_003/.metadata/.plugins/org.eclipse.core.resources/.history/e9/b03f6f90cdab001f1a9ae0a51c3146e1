@@ -1,0 +1,40 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const submitButton = document.getElementById('submitFavorite');
+    const commentField = document.getElementById('favoriteComment');
+    const houseIdField = document.getElementById('houseId');
+
+    submitButton.addEventListener('click', () => {
+        const comment = commentField.value.trim();
+        const houseId = houseIdField.value;
+
+        if (!comment) {
+            alert('コメントを入力してください。');
+            return;
+        }
+
+        fetch('/favorites', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value
+            },
+            body: JSON.stringify({ house: { id: houseId }, comment: comment })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP status ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response from server:', data);
+            alert('お気に入りに追加しました！');
+            const favoriteModal = bootstrap.Modal.getInstance(document.getElementById('favoriteModal'));
+            favoriteModal.hide();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('エラーが発生しました。もう一度試してください。');
+        });
+    });
+});

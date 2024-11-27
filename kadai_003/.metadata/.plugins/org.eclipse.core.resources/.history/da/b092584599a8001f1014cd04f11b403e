@@ -1,0 +1,96 @@
+// 部分的な星を描画する関数
+function renderPartialStars(target, rating) {
+    const starContainer = typeof target === 'string' 
+        ? document.querySelector(target)
+        : target;
+
+    if (!starContainer) return; // 要素が見つからない場合は処理を終了
+
+    // 子要素をすべて削除してクリア（重複防止）
+    while (starContainer.firstChild) {
+        starContainer.removeChild(starContainer.firstChild);
+    }
+
+    // 塗りつぶし率を計算
+    const percentage = (rating / 5) * 100;
+
+    // 背景用の星
+    const starsBackground = document.createElement('div');
+    starsBackground.className = 'stars-background';
+    starsBackground.textContent = '★★★★★'; // 背景の星
+
+    // 塗りつぶし用の星
+    const starsFilled = document.createElement('div');
+    starsFilled.className = 'stars-filled';
+    starsFilled.style.width = `${percentage}%`;
+    starsFilled.textContent = '★★★★★'; // 塗りつぶし部分
+
+    // 星の背景と塗りつぶしを追加
+    starContainer.appendChild(starsBackground);
+    starContainer.appendChild(starsFilled);
+}
+
+// ページ読み込み時に全体評価の星を描画
+document.addEventListener('DOMContentLoaded', () => {
+    const overallRatingElement = document.getElementById('overall-rating-value');
+    if (overallRatingElement) {
+        const overallRating = parseFloat(overallRatingElement.textContent || '0');
+        renderPartialStars('#overall-stars', overallRating); // 全体評価の星
+    }
+});
+
+// 各レビューの星を描画
+document.querySelectorAll('.review-rating').forEach(review => {
+    const rating = parseFloat(review.dataset.rating); // 各レビューの評価を取得
+    renderPartialStars(review, rating); // 各レビューの星を描画
+});
+
+// 星評価のインタラクション設定
+function setupStarRatingInteraction(containerSelector) {
+    const starsContainer = document.querySelector(containerSelector);
+    if (!starsContainer) return;
+
+    const stars = starsContainer.querySelectorAll('.star');
+    const evaluationInput = starsContainer.querySelector('input[name="evaluation"]');
+
+    // 初期化（編集ページの場合、既存の評価値をハイライト）
+    if (evaluationInput && evaluationInput.value) {
+        const initialRating = parseInt(evaluationInput.value, 10);
+        stars.forEach((star, index) => {
+            if (index < initialRating) {
+                star.classList.add('selected');
+            }
+        });
+    }
+
+    // 星をクリックした時の処理
+    stars.forEach(star => {
+        star.addEventListener('click', () => {
+            const value = star.getAttribute('data-value');
+            evaluationInput.value = value;
+
+            // 全ての星をリセット
+            stars.forEach(s => s.classList.remove('selected'));
+
+            // 選択した星までをハイライト
+            for (let i = 0; i < value; i++) {
+                stars[i].classList.add('selected');
+            }
+        });
+    });
+}
+
+// DOMContentLoadedで初期化
+document.addEventListener('DOMContentLoaded', () => {
+//    initOverallRating(); // 全体評価の初期化
+    initReviewRatings(); // 各レビューの星を初期化
+    setupStarRatingInteraction('.stars-container'); // 投稿ページ用星評価
+});
+
+function initReviewRatings() {
+    // 各レビューの星を描画
+    document.querySelectorAll('.review-rating').forEach(review => {
+        const rating = parseFloat(review.dataset.rating); // 各レビューの評価を取得
+        renderPartialStars(review, rating); // 各レビューの星を描画
+    });
+}

@@ -1,0 +1,68 @@
+document.addEventListener('DOMContentLoaded', () => {
+    // 「お気に入り追加」ボタンを取得
+    const favoriteButtons = document.querySelectorAll('.add-to-favorite');
+
+    favoriteButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const houseId = button.getAttribute('data-house-id');
+
+            // CSRFトークンを取得
+			const csrfMeta = document.querySelector('meta[name="_csrf"]');
+			console.log(csrfMeta); // nullでないことを確認
+
+            if (!csrfMeta) {
+                console.error('CSRFトークンが見つかりません');
+                return;
+            }
+            const csrfToken = csrfMeta.getAttribute('content');
+
+            // モーダルの表示
+            const modalElement = document.getElementById('favoriteModal');
+            if (!modalElement) {
+                console.error('モーダルが見つかりません');
+                return;
+            }
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+
+            // フォーム送信処理の設定
+            const submitButton = document.getElementById('favorite-submit');
+            const newSubmitHandler = () => {
+                const comment = document.getElementById('favorite-comment').value.trim();
+                if (!comment) {
+                    alert('コメントを入力してください');
+                    return;
+                }
+
+                fetch(`/favorites`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ houseId, comment })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(errorMessage => {
+                            throw new Error(`エラー: ${errorMessage}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert('お気に入りに追加しました！');
+                    modal.hide();
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert('エラーが発生しました。もう一度お試しください。');
+                });
+            };
+
+            // イベントリスナーの再設定（重複を防ぐ）
+            submitButton.removeEventListener('click', newSubmitHandler);
+            submitButton.addEventListener('click', newSubmitHandler);
+        });
+    });
+});

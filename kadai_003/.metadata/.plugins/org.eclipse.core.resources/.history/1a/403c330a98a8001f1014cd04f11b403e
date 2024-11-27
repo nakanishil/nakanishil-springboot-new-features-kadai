@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta th:replace="~{fragment :: meta}">
+    <link th:replace="~{fragment :: styles}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>レビュー投稿</title>
+</head>
+<body>
+    <div class="samuraitravel-wrapper">
+        <!-- ヘッダー -->
+        <div th:replace="~{fragment :: header}"></div>
+
+        <main>
+            <div class="container pt-4 pb-5 samuraitravel-container">
+                <div class="row justify-content-center">
+                    <div class="col-xxl-9 col-xl-10 col-lg-11">
+                        <nav class="mb-4" style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a th:href="@{/}">ホーム</a></li>
+                                <li class="breadcrumb-item"><a th:href="@{/houses}">民宿一覧</a></li>
+                                <li class="breadcrumb-item"><a th:href="@{/houses/{id}(id=${house.id})}">民宿詳細</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">レビュー投稿</li>
+                            </ol>
+                        </nav>
+
+                        <h1 class="mb-4 text-center" th:text="'レビュー投稿 - ' + ${house.name}"></h1>
+
+                        <!-- レビュー投稿フォーム -->
+                        <form method="post" th:action="@{/houses/{id}/post(id=${house.id})}">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <!-- 総合評価 -->
+                                    <h3>総合評価</h3>
+                                    <div class="stars-container mb-3">
+                                    	<label for="evaluation" class="form-label">評価を選択してください:</label>	
+                                        <input type="hidden" name="evaluation" id="evaluation">
+                                        <div id="star-rating" class="d-flex gap-1">
+                                            <span class="star" data-value="1">★</span>
+                                            <span class="star" data-value="2">★</span>
+                                            <span class="star" data-value="3">★</span>
+                                            <span class="star" data-value="4">★</span>
+                                            <span class="star" data-value="5">★</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- レビュー内容 -->
+                                    <h3>レビューを追加</h3>
+                                    <div class="mb-3">
+                                    	<label for="review" class="form-label">レビュー内容:</label>
+										<textarea class="form-control" id="review" name="review" rows="5" placeholder="レビューの詳細を記載してください..." required></textarea>
+
+                                    </div>
+
+                                    <!-- 投稿ボタン -->
+                                    <div class="text-end">
+                                        <button type="submit" class="btn text-white samuraitravel-btn">投稿</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- フッター -->
+        <div th:replace="~{fragment :: footer}"></div>
+
+        <div th:replace="~{fragment :: scripts}"></div>
+
+        <!-- Flatpickr -->
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
+
+        <!-- JavaScriptで星評価を処理 -->
+        <script>
+            const stars = document.querySelectorAll('.star');
+            const evaluationInput = document.getElementById('evaluation');
+
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    const value = star.getAttribute('data-value');
+                    evaluationInput.value = value;
+
+                    // 全ての星をリセット
+                    stars.forEach(s => s.classList.remove('selected'));
+
+                    // 選択した星までをハイライト
+                    for (let i = 0; i < value; i++) {
+                        stars[i].classList.add('selected');
+                    }
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>

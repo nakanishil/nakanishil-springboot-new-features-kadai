@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>お気に入りリスト</title>
+</head>
+<body>
+    <h1>お気に入りリスト</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>宿の名前</th>
+                <th>コメント</th>
+                <th>登録日</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="favorite : ${favorites}">
+                <td th:text="${favorite.house.name}">宿の名前</td>
+                <td th:text="${favorite.comment}">コメント</td>
+                <td th:text="${favorite.favoriteDay}">登録日</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

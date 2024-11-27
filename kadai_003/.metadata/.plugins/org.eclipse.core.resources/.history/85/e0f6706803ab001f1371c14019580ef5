@@ -1,0 +1,12 @@
+package com.example.samuraitravel.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import com.example.samuraitravel.entity.Favorite;
+
+public interface FavoriteRepository extends JpaRepository<Favorite, Integer> {
+ 	
+    List<Favorite> findByUserId(Integer userId);
+    List<Favorite> findByHouseId(Integer houseId);
+}

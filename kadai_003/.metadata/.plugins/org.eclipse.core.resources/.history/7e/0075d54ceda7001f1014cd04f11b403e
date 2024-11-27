@@ -1,0 +1,42 @@
+package com.example.samuraitravel.service;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.example.samuraitravel.entity.House;
+import com.example.samuraitravel.entity.Review;
+import com.example.samuraitravel.form.ReviewForm;
+import com.example.samuraitravel.repository.HouseRepository;
+import com.example.samuraitravel.repository.ReviewRepository;
+import com.example.samuraitravel.repository.UserRepository;
+
+@Service
+public class ReviewService {
+
+    private final HouseRepository houseRepository;
+    private final ReviewRepository reviewRepository;
+    private final UserRepository userRepository;
+
+    public ReviewService(HouseRepository houseRepository, ReviewRepository reviewRepository, UserRepository userRepository) {
+        this.houseRepository = houseRepository;
+        this.reviewRepository = reviewRepository;
+        this.userRepository = userRepository;
+    }
+
+    @Transactional
+    public void saveReview(Integer houseId, ReviewForm reviewForm, String username) {
+        // 宿泊施設の取得
+        House house = houseRepository.findById(houseId)
+                .orElseThrow(() -> new RuntimeException("宿泊施設が見つかりません"));
+
+        // レビューの作成
+        Review review = new Review();
+        review.setHouse(house);
+        review.setEvaluation(reviewForm.getEvaluation());
+        review.setReview(reviewForm.getReview());
+        review.setUser(username); // ログイン中のユーザー名を設定
+
+        // レビューの保存
+        reviewRepository.save(review);
+    }
+}

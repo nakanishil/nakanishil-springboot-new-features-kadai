@@ -1,0 +1,31 @@
+package com.example.samuraitravel.service;
+
+import com.example.samuraitravel.entity.Favorite;
+import com.example.samuraitravel.repository.FavoriteRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class FavoriteService {
+
+    @Autowired
+    private FavoriteRepository favoriteRepository;
+
+    public List<Favorite> getFavoritesByUserId(Integer userId) {
+        return favoriteRepository.findByUserId(userId);
+    }
+
+    public List<Favorite> getFavoritesByHouseId(Integer houseId) {
+        return favoriteRepository.findByHouseId(houseId);
+    }
+
+    public Favorite saveFavorite(Favorite favorite) {
+        return favoriteRepository.save(favorite);
+    }
+
+    public void deleteFavorite(Integer favoriteId) {
+        favoriteRepository.deleteById(favoriteId);
+    }
+}

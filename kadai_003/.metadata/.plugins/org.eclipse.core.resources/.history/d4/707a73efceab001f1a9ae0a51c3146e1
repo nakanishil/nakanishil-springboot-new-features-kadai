@@ -1,0 +1,35 @@
+
+document.addEventListener('DOMContentLoaded', () => {
+    // 削除ボタンが押された際の処理
+    const deleteForms = document.querySelectorAll('form[action*="/favorites/"]');
+    
+    deleteForms.forEach(form => {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault(); // デフォルトのフォーム送信を防ぐ
+
+            const url = form.getAttribute('action'); // フォームのURL取得
+            const csrfToken = form.querySelector('input[name="_csrf"]').value;
+
+            fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('削除リクエストに失敗しました。');
+                }
+                return response.text();
+            })
+            .then(() => {
+                alert('お気に入りを削除しました。');
+                location.reload(); // ページをリロードしてお気に入りリストを更新
+            })
+            .catch(error => {
+                console.error(error);
+                alert('エラーが発生しました。もう一度試してください。');
+            });
+        });
+    });
+});

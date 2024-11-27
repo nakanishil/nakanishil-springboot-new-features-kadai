@@ -1,0 +1,83 @@
+package com.example.samuraitravel.security;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+public class WebSecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests((requests) -> requests                                                
+                .requestMatchers("/css/**", "/images/**", "/js/**", "/storage/**", "/", "/signup/**").permitAll()
+                .requestMatchers("/houses/**").authenticated() // houses以下は認証
+                .requestMatchers("/admin/**").hasRole("ADMIN")  // 管理者専用
+                .anyRequest().authenticated()                   // それ以外は認証必須
+                
+            )
+            .formLogin((form) -> form
+                .loginPage("/login")              // ログインページ
+                .loginProcessingUrl("/login")     // ログイン処理
+                .defaultSuccessUrl("/?loggedIn")  // ログイン成功時のリダイレクト先
+                .failureUrl("/login?error")       // ログイン失敗時のリダイレクト先
+                .permitAll()
+            )
+            .logout((logout) -> logout
+                .logoutSuccessUrl("/?loggedOut")  // ログアウト時のリダイレクト先
+                .permitAll()
+            )  
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/stripe/webhook", "/reviews/**") // CSRFを無効化
+            );
+        return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
+
+
+//public class WebSecurityConfig {
+//
+//	@Bean
+//	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//	    http
+//	        .authorizeHttpRequests((requests) -> requests                                                
+//	            .requestMatchers("/css/**", "/images/**", "/js/**", "/storage/**", "/", "/signup/**", "/houses/{id}", "/houses", "/houses/*", "/stripe/webhook", "/houses/**").permitAll()  // 公開URL
+//	            .requestMatchers("/houses/{id}/reviews").permitAll() // 公開URL
+//	            .requestMatchers("/admin/**").hasRole("ADMIN")  // 管理者専用URL
+//	            .anyRequest().authenticated()                   // それ以外は認証必須
+//	            
+//
+//	        )
+//	        .formLogin((form) -> form
+//	            .loginPage("/login")              // ログインページ
+//	            .loginProcessingUrl("/login")     // ログイン処理
+//	            .defaultSuccessUrl("/?loggedIn")  // ログイン成功時のリダイレクト先
+//	            .failureUrl("/login?error")       // ログイン失敗時のリダイレクト先
+//	            .permitAll()
+//	        )
+//	        .logout((logout) -> logout
+//	            .logoutSuccessUrl("/?loggedOut")  // ログアウト時のリダイレクト先
+//	            .permitAll()
+//	        )  
+//	        .csrf().ignoringRequestMatchers("/stripe/webhook", "/reviews/**"); // 特定のURLでCSRFを無効化
+//	    return http.build();
+//	}
+//	
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
+//}

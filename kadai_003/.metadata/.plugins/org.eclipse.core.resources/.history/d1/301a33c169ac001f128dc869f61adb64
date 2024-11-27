@@ -1,0 +1,27 @@
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
+@Entity
+@Getter
+@Setter
+@Table(name = "favorites", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "house_id"}))
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "favoriteId")
+public class Favorite {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer favoriteId;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "house_id", nullable = false)
+    private House house;
+
+    private String comment;
+
+    @Column(name = "favorite_day", nullable = false, updatable = false)
+    private LocalDateTime favoriteDay;
+}

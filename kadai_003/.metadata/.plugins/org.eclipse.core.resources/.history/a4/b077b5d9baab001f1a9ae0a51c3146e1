@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>お気に入りリスト</title>
+<link th:replace="~{fragment :: meta}">
+<link th:replace="~{fragment :: styles}">
+
+</head>
+<body>
+	<div class="samuraitravel-wrapper">
+		<!-- ヘッダー -->
+		<div th:replace="~{fragment :: header}"></div>
+
+		<main>
+			<div class="container pt-4 pb-5 samuraitravel-container">
+				<!-- タイトル -->
+				<h1 class="mb-4 text-center">お気に入りリスト</h1>
+
+				<!-- お気に入りがない場合 -->
+				<div th:if="${favorites == null || favorites.isEmpty()}"
+					class="alert alert-info text-center">
+					<p>お気に入りがまだありません。</p>
+				</div>
+
+				<!-- お気に入りリスト -->
+				<div th:if="${favorites != null && !favorites.isEmpty()}">
+					<div th:each="favorite : ${favorites}"
+						class="card mb-3 position-relative">
+						<div class="card-body">
+							<!-- 宿の名前 -->
+							<h5 class="card-title" th:text="${favorite.house.name}">宿の名前</h5>
+
+							<!-- コメント -->
+							<p class="card-text" th:text="${favorite.comment}">コメント</p>
+
+							<!-- 登録日 -->
+							<p class="card-text">
+								<small class="text-muted"
+									th:text="${#temporals.format(favorite.favoriteDay, 'yyyy/MM/dd HH:mm')}">登録日</small>
+							</p>
+
+							<!-- ボタンを右上に配置 -->
+							<div class="card-buttons">
+								<!-- 宿の詳細ページへのリンク -->
+								<a th:href="@{/houses/{id}(id=${favorite.house.id})}"
+									class="btn btn-primary btn-sm">宿の詳細を見る</a>
+
+								<!-- お気に入り削除ボタン -->
+								<button type="button" class="btn btn-danger btn-sm"
+									data-bs-toggle="modal"
+									th:data-bs-target="'#deleteConfirmModal-' + ${favorite.favoriteId}">
+									お気に入り削除</button>
+							</div>
+
+							<!-- 削除確認モーダル -->
+							<div class="modal fade"
+								th:id="'deleteConfirmModal-' + ${favorite.favoriteId}"
+								tabindex="-1" aria-labelledby="deleteConfirmModalLabel"
+								aria-hidden="true">
+								<div class="modal-dialog">
+									<div class="modal-content">
+										<div class="modal-header">
+											<h5 class="modal-title" id="deleteConfirmModalLabel">削除確認</h5>
+											<button type="button" class="btn-close"
+												data-bs-dismiss="modal" aria-label="Close"></button>
+										</div>
+										<div class="modal-body">このお気に入りを削除しますか？</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-secondary"
+												data-bs-dismiss="modal">キャンセル</button>
+											<form
+												th:action="@{/favorites/{favoriteId}(favoriteId=${favorite.favoriteId})}"
+												method="POST">
+												<input type="hidden" name="_method" value="DELETE">
+												<!-- 疑似DELETEメソッド -->
+												<input type="hidden" name="_csrf" th:value="${_csrf.token}">
+												<!-- CSRFトークン -->
+												<button type="submit" class="btn btn-danger">削除</button>
+											</form>
+
+
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+
+		<!-- フッター -->
+		<div th:replace="~{fragment :: footer}"></div>
+	</div>
+
+	<div th:replace="~{fragment :: scripts}"></div>
+</body>
+</html>

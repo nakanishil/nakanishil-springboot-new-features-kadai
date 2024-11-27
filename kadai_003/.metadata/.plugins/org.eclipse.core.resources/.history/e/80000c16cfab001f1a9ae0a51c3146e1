@@ -1,0 +1,34 @@
+document.addEventListener('DOMContentLoaded', () => {
+    // お気に入り削除フォームを取得
+    const deleteForms = document.querySelectorAll('form[action*="/favorites/"]');
+    
+    deleteForms.forEach(form => {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault(); // デフォルトの送信処理をキャンセル
+
+            const url = form.getAttribute('action'); // URL を取得
+            const csrfToken = form.querySelector('input[name="_csrf"]').value;
+
+            fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('削除に失敗しました。');
+                }
+                return response.text();
+            })
+            .then(() => {
+                alert('お気に入りを削除しました。');
+                location.reload(); // ページをリロードして変更を反映
+            })
+            .catch(error => {
+                console.error(error);
+                alert('エラーが発生しました。時間を置いて再試行してください。');
+            });
+        });
+    });
+});

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta th:replace="~{fragment :: meta}">
+    <link th:replace="~{fragment :: styles}">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>レビュー編集</title>
+</head>
+<body>
+    <div class="samuraitravel-wrapper">
+        <!-- ヘッダー -->
+        <div th:replace="~{fragment :: header}"></div>
+
+        <main>
+            <div class="container pt-4 pb-5 samuraitravel-container">
+                <div class="row justify-content-center">
+                    <div class="col-xxl-9 col-xl-10 col-lg-11">
+                        <nav class="mb-4" style="--bs-breadcrumb-divider: '>';"
+                             aria-label="breadcrumb">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a th:href="@{/}">ホーム</a></li>
+                                <li class="breadcrumb-item"><a th:href="@{/houses}">民宿一覧</a></li>
+                                <li class="breadcrumb-item"><a
+                                        th:href="@{/houses/{id}(id=${house.id})}">民宿詳細</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">レビュー編集</li>
+                            </ol>
+                        </nav>
+
+                        <h1 class="mb-4 text-center" th:text="'レビュー編集 - ' + ${house.name}"></h1>
+
+                        <!-- レビュー編集フォーム -->
+						<form method="post" th:action="@{/reviews/{id}/update(id=${review.reviewId})}">
+						    <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+							  
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <!-- 総合評価 -->
+                                    <h3 id="post-general-comment">総合評価</h3>
+                                    <p>1~5の評価で☆をクリックしてください。</p>
+                                    <div class="stars-container mb-3">
+                                        <div id="star-rating"
+                                             class="post-stars-container d-flex gap-1">
+                                            <input type="hidden" name="evaluation" id="evaluation"
+                                                   th:value="${review.evaluation}">
+                                            <span class="star" data-value="1"
+                                                  th:classappend="${review.evaluation >= 1} ? 'selected' : ''">★</span>
+                                            <span class="star" data-value="2"
+                                                  th:classappend="${review.evaluation >= 2} ? 'selected' : ''">★</span>
+                                            <span class="star" data-value="3"
+                                                  th:classappend="${review.evaluation >= 3} ? 'selected' : ''">★</span>
+                                            <span class="star" data-value="4"
+                                                  th:classappend="${review.evaluation >= 4} ? 'selected' : ''">★</span>
+                                            <span class="star" data-value="5"
+                                                  th:classappend="${review.evaluation >= 5} ? 'selected' : ''">★</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- レビュー内容 -->
+                                    <div class="mb-3">
+                                        <label for="review" class="form-label">レビュー内容:</label>
+                                        <textarea class="form-control" id="review" name="review"
+                                                  rows="5"
+                                                  placeholder="レビューの詳細を記載してください..."
+                                                  th:text="${review.review}" required></textarea>
+                                    </div>
+
+                                    <!-- 更新ボタン -->
+                                    <div class="text-end">
+                                        <button type="submit" class="btn text-white samuraitravel-btn">更新</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- フッター -->
+        <div th:replace="~{fragment :: footer}"></div>
+
+        <div th:replace="~{fragment :: scripts}"></div>
+
+        <!-- Flatpickr -->
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ja.js"></script>
+
+        <script src="/js/reviewStar.js"></script>
+
+    </div>
+</body>
+</html>

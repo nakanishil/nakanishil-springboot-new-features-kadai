@@ -1,0 +1,53 @@
+import java.time.LocalDateTime;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.samuraitravel.entity.Favorite;
+import com.example.samuraitravel.entity.User;
+import com.example.samuraitravel.service.FavoriteService;
+import com.example.samuraitravel.service.UserService;
+
+@RestController
+public class FavoriteController {
+
+    private static final Logger logger = LoggerFactory.getLogger(FavoriteController.class);
+    private final FavoriteService favoriteService;
+rvice;
+
+    // コンストラクタインジェクション
+    public FavoriteController(FavoriteService favoriteService, UserService userService) {
+        this.favoriteService = favoriteService;
+        this.userService = userService;
+    }
+
+    @PostMapping("/favorites")
+    public ResponseEntity<Favorite> saveFavorite(@RequestBody Favorite favorite) {
+        logger.info("Received POST request for saving favorite: {}", favorite);
+
+        // 認証済みユーザーを取得
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.findByEmail(email);
+
+        if (user == null) {
+            logger.warn("User not found for email: {}", email);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // ユーザーと現在時刻を設定
+        favorite.setUser(user);
+        favorite.setFavoriteDay(LocalDateTime.now());
+
+        // お気に入りを保存
+        Favorite savedFavorite = favoriteService.saveFavorite(favorite);
+        logger.info("Favorite saved successfully: {}", savedFavorite);
+
+        return ResponseEntity.ok(savedFavorite);
+    }
+}

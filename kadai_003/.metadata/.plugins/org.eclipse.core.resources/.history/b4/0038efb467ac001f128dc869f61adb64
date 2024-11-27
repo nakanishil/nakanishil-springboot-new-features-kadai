@@ -1,0 +1,50 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const submitButton = document.getElementById('favorite-submit');
+    const csrfMeta = document.querySelector('meta[name="_csrf"]');
+    const csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : null;
+
+    if (!csrfToken) {
+        console.error("CSRFトークンが見つかりません");
+        return;
+    }
+
+    submitButton.addEventListener('click', () => {
+        const houseId = document.getElementById('house-id').value;
+        const comment = document.getElementById('favorite-comment').value.trim();
+
+        console.log("送信データ:", { houseId, comment });
+
+        fetch('/favorites', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({ houseId, comment })
+        })
+        .then(response => {
+            console.log("レスポンスステータス:", response.status);
+            if (!response.ok) {
+                return response.text().then(errorMessage => {
+                    console.error("エラーメッセージ:", errorMessage);
+                    throw new Error(errorMessage);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("サーバーからのレスポンス:", data);
+            alert("お気に入りに追加しました！");
+            
+            // モーダルを閉じる
+            const modalElement = document.getElementById('favoriteModal');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            modal.hide();
+        })
+        .catch(error => {
+            console.error("エラー詳細:", error);
+            alert("エラーが発生しました: " + error.message);
+        });
+    });
+});
+
